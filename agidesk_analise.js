@@ -66,27 +66,31 @@ export async function carregarDados() {
     const API_URL = `${AGIDESK_BASE_URL}/datasets/serviceissues?app_key=${AGIDESK_APP_KEY}&metadata&pretty&per_page=1000&page=1&forecast=teams&extrafield=all`;
 
     try {
-    console.log(`Iniciando busca na API Agidesk... ID mínimo: ${LAST_ANALYZED_ID}`);
-    const response = await axios.get(API_URL);
-    const chamados = response.data?.data || [];
+        console.log(`Iniciando busca na API Agidesk... ID mínimo: ${LAST_ANALYZED_ID}`);
+        const response = await axios.get(API_URL);
+        const chamados = response.data?.data || [];
 
-    const filtrados = chamados.filter(
-        (c) => c.title === TARGET_TITLE && parseInt(c.id) > LAST_ANALYZED_ID
-    );
+        
+        const filtrados = chamados.filter((c) =>
+            c.title === TARGET_TITLE &&
+            parseInt(c.id) > LAST_ANALYZED_ID &&
+            (c.status_name?.toLowerCase() === "em atendimento" || c.status?.toLowerCase() === "em atendimento")
+        );
 
-    if (filtrados.length > 0) {
-        filtrados.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-        console.log(`🔎 ${filtrados.length} novos chamados encontrados.`);
-    } else {
-        console.log("Nenhum novo chamado encontrado.");
-    }
+        if (filtrados.length > 0) {
+            filtrados.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            console.log(`🔎 ${filtrados.length} novos chamados em atendimento encontrados.`);
+        } else {
+            console.log("Nenhum novo chamado em atendimento encontrado.");
+        }
 
-    return filtrados;
+        return filtrados;
     } catch (err) {
-    console.error("❌ Erro ao buscar dados da API:", err.message);
-    return [];
+        console.error("❌ Erro ao buscar dados da API:", err.message);
+        return [];
     }
 }
+
 
 async function gerarParecer(chamado) {
     const chamadoId = chamado.id;
