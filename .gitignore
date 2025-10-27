@@ -1,0 +1,43 @@
+# ============================================
+# 🔒 Arquivos e pastas sensíveis / privadas
+# ============================================
+.env
+cache.json
+*.log
+*.pem
+*.key
+
+# ============================================
+# 🧠 Dependências e build
+# ============================================
+node_modules/
+dist/
+build/
+coverage/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ============================================
+# 🧰 Configurações e IDEs
+# ============================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# 💾 Sistema e SO
+# ============================================
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+
+# ============================================
+# 🧪 Ambientes virtuais / Python (caso use)
+# ============================================
+venv/
+__pycache__/
+*.pyc
