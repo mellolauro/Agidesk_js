@@ -2,18 +2,24 @@ import axios from "axios";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { OpenAI } from "openai";
+// import { OpenAI } from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
 const AGIDESK_BASE_URL = process.env.AGIDESK_BASE_URL || "https://cnc.agidesk.com/api/v1";
 const AGIDESK_APP_KEY = process.env.AGIDESK_APP_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+//const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+//const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
 const TARGET_TITLE = process.env.TARGET_TITLE || "Central de Serviços";
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+
 let LAST_ANALYZED_ID = parseInt(process.env.LAST_ANALYZED_ID || "0", 10);
 
-const client = new OpenAI({ apiKey: OPENAI_API_KEY });
+// const client = new OpenAI({ apiKey: OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 const CACHE_FILE = path.resolve("./cache.json");
 
@@ -70,18 +76,33 @@ export async function carregarDados() {
         const response = await axios.get(API_URL);
         const chamados = response.data?.data || [];
 
-        
-        const filtrados = chamados.filter((c) =>
-            c.title === TARGET_TITLE &&
-            parseInt(c.id) > LAST_ANALYZED_ID &&
-            (c.status_name?.toLowerCase() === "em atendimento" || c.status?.toLowerCase() === "em atendimento")
-        );
+        console.log(`📦 Total de chamados retornados: ${chamados.length}`);
+
+        // Verifica quais campos existem (debug)
+        if (chamados.length > 0) {
+            const exemplo = chamados[0];
+            console.log("🔍 Exemplo de campos:", Object.keys(exemplo).slice(0, 10));
+        }
+
+        const filtrados = chamados.filter((c) => {
+            const titleMatch = (c.title || "").trim().toLowerCase() === (TARGET_TITLE || "").trim().toLowerCase();
+            const idMatch = parseInt(c.id) > LAST_ANALYZED_ID;
+            const statusValue = (c.status_name || c.status || c.status_label || "").trim().toLowerCase();
+            const statusMatch = statusValue === "em atendimento";
+
+            // Log de debug para entender o que está vindo
+            if (titleMatch && idMatch) {
+                console.log(`🧾 [${c.id}] Status detectado: "${statusValue}"`);
+            }
+
+            return titleMatch && idMatch && statusMatch;
+        });
 
         if (filtrados.length > 0) {
             filtrados.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            console.log(`🔎 ${filtrados.length} novos chamados em atendimento encontrados.`);
+            console.log(`🔎 ${filtrados.length} novos chamados "Em atendimento" encontrados.`);
         } else {
-            console.log("Nenhum novo chamado em atendimento encontrado.");
+            console.log("Nenhum novo chamado 'Em atendimento' encontrado.");
         }
 
         return filtrados;
@@ -90,7 +111,6 @@ export async function carregarDados() {
         return [];
     }
 }
-
 
 async function gerarParecer(chamado) {
     const chamadoId = chamado.id;
@@ -122,15 +142,19 @@ ${conteudo}
 `;
 
     try {
-    const completion = await client.chat.completions.create({
-        model: OPENAI_MODEL,
-        messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-        ],
-    });
+    //const completion = await client.chat.completions.create({
+    //    model: OPENAI_MODEL,
+    //    messages: [
+    //    { role: "system", content: systemPrompt },
+    //    { role: "user", content: userPrompt },
+    //    ],
+    //});
 
-    const parecer = completion.choices[0].message.content.trim();
+    //const parecer = completion.choices[0].message.content.trim();
+    const prompt = `${systemPrompt}\n\n${userPrompt}`;
+
+    const result = await model.generateContent(prompt);
+    const parecer = result.response.text().trim();
 
     cache[chamadoId] = {
         parecer,
