@@ -1,11 +1,16 @@
 import express from "express";
-import { carregarDados, gerarParecerHTML, enviarParecerParaAgidesk, atualizarEnv } from "./agidesk_analise.js";
+import cron from "node-cron";
+import { carregarDados, gerarParecerHTML, processarChamados, enviarParecerParaAgidesk, atualizarEnv } from "./agidesk_analise.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+cron.schedule("*/10 * * * *", async () => {
+    console.log("⏰ Executando verificação a cada 10 minutos...");
+    await processarChamados();
+});
 
 const HTML_TEMPLATE = (chamados, dataAtual) => `
 <!DOCTYPE html>
