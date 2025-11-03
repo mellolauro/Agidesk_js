@@ -1,6 +1,6 @@
 import express from "express";
 import cron from "node-cron";
-import { carregarDados, gerarParecerHTML, processarChamados, enviarParecerParaAgidesk, atualizarEnv, processarChamados } from "./agidesk_analise.js";
+import { carregarDados, gerarParecerHTML, enviarParecerParaAgidesk, atualizarEnv, processarChamados } from "./agidesk_analise.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -76,7 +76,7 @@ const HTML_TEMPLATE = (chamados, dataAtual) => `
 
 
 app.get("/", async (req, res) => {
-    console.log("🚀 Iniciando busca de novos chamados...");
+    console.log("🚀 Iniciando busca de novos chamados para tratamento...");
 
     const chamados = await carregarDados();
     const processados = [];
