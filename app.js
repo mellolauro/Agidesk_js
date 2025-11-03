@@ -1,6 +1,6 @@
 import express from "express";
 import cron from "node-cron";
-import { carregarDados, gerarParecerHTML, enviarParecerParaAgidesk, atualizarEnv } from "./agidesk_analise.js";
+import { carregarDados, gerarParecerHTML, processarChamados, enviarParecerParaAgidesk, atualizarEnv } from "./agidesk_analise.js";
 import dotenv from "dotenv";
 
 dotenv.config();

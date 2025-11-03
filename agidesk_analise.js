@@ -211,3 +211,31 @@ export async function enviarParecerParaAgidesk(chamadoId, parecerHtml) {
     return null;
     }
 }
+
+export async function processarChamados() {
+    console.log("🚀 Iniciando busca de novos chamados...");
+
+    try {
+    const chamados = await carregarDados();
+    if (!chamados.length) {
+        console.log("Nenhum novo chamado encontrado.");
+        return;
+    }
+
+    for (const chamado of chamados) {
+        console.log(`🔧 Processando chamado ${chamado.id} - ${chamado.title}`);
+
+        try {
+        const parecerHtml = await gerarParecerHTML(chamado);
+        await enviarParecerParaAgidesk(chamado.id, parecerHtml);
+        atualizarEnv(chamado.id);
+        } catch (err) {
+        console.error(`❌ Erro ao processar chamado ${chamado.id}:`, err.message);
+        }
+    }
+
+    console.log("✅ Processamento concluído.");
+    } catch (err) {
+    console.error("❌ Erro geral no processamento:", err.message);
+    }
+}
