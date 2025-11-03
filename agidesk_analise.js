@@ -11,7 +11,7 @@ const AGIDESK_BASE_URL = process.env.AGIDESK_BASE_URL || "https://cnc.agidesk.co
 const AGIDESK_APP_KEY = process.env.AGIDESK_APP_KEY;
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 //const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
-const TARGET_TITLE = process.env.TARGET_TITLE || "Central de Serviços";
+const TARGET_TITLE = process.env.TARGET_TITLE || "Parecer Técnico";
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
