@@ -83,24 +83,24 @@ app.get("/", async (req, res) => {
     let ultimoId = null;
 
     for (const item of chamados) {
-    const chamadoId = item.id;
-    const titulo = item.title;
-    const conteudo = item.content || "Sem conteúdo disponível";
+        const chamadoId = item.id;
+        const titulo = item.title;
+        const conteudo = item.content || "Sem conteúdo disponível";
 
-    console.log(`🔧 Processando chamado ${chamadoId} - ${titulo}`);
+        console.log(`🔧 Processando chamado ${chamadoId} - ${titulo}`);
 
-    const parecerHtml = await gerarParecerHTML(item);
-    await enviarParecerParaAgidesk(chamadoId, parecerHtml);
+        const parecerHtml = await gerarParecerHTML(item);
+        await enviarParecerParaAgidesk(chamadoId, parecerHtml);
 
-    processados.push({
-        id: chamadoId,
-        title: titulo,
-        status: item.status,
-        content: conteudo,
-        parecer: parecerHtml
-    });
+        processados.push({
+            id: chamadoId,
+            title: titulo,
+            status: item.status,
+            content: conteudo,
+            parecer: parecerHtml
+        });
 
-    ultimoId = chamadoId;
+        ultimoId = chamadoId;
     }
 
     if (ultimoId) atualizarEnv(ultimoId);
